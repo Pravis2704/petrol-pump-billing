@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Petrol Pump Billing System</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 30px;
+        }
+        .container {
+            background: white;
+            max-width: 500px;
+            margin: auto;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+        input[type="submit"] {
+            background: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        textarea {
+            height: 200px;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Petrol Pump Billing</h2>
+        <form method="POST">
+            <label>Customer Name</label>
+            <input type="text" name="name" required>
+
+            <label>Fuel Type</label>
+            <select name="fuel">
+                {% for fuel, rate in fuel_prices.items() %}
+                <option value="{{ fuel }}">{{ fuel }} (₹{{ rate }}/L)</option>
+                {% endfor %}
+            </select>
+
+            <label>Quantity (Litres)</label>
+            <input type="number" name="quantity" step="0.1" required>
+
+            <input type="submit" value="Generate Bill">
+        </form>
+
+        {% if bill %}
+        <h3>Generated Bill</h3>
+        <textarea readonly>{{ bill }}</textarea>
+        {% endif %}
+    </div>
+</body>
+</html>
