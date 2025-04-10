@@ -1,69 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Petrol Pump Billing System</title>
+    <title>Petrol Pump Billing</title>
     <style>
         body {
-            font-family: Arial;
-            background: #f4f4f4;
-            padding: 30px;
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f7f7f7;
         }
-        .container {
-            background: white;
-            max-width: 500px;
-            margin: auto;
+        h1 {
+            color: #333;
+        }
+        form {
+            background-color: #fff;
             padding: 25px;
-            border-radius: 10px;
+            border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h2 {
-            text-align: center;
+            max-width: 400px;
         }
         label {
+            display: block;
+            margin-top: 12px;
             font-weight: bold;
         }
-        input, select, textarea {
+        input, select {
             width: 100%;
             padding: 8px;
-            margin-top: 5px;
-            margin-bottom: 15px;
+            margin-top: 6px;
+            margin-bottom: 12px;
         }
-        input[type="submit"] {
-            background: green;
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
             color: white;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
         }
-        textarea {
-            height: 200px;
-            resize: none;
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        a {
+            display: inline-block;
+            margin-top: 15px;
+            color: #007BFF;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Petrol Pump Billing</h2>
-        <form method="POST">
-            <label>Customer Name</label>
-            <input type="text" name="name" required>
+    <h1>Petrol Pump Billing System</h1>
+    <form method="POST">
+        <label for="fuel_type">Fuel Type:</label>
+        <select name="fuel_type" id="fuel_type">
+            <option value="Petrol">Petrol</option>
+            <option value="Diesel">Diesel</option>
+        </select>
 
-            <label>Fuel Type</label>
-            <select name="fuel">
-                {% for fuel, rate in fuel_prices.items() %}
-                <option value="{{ fuel }}">{{ fuel }} (₹{{ rate }}/L)</option>
-                {% endfor %}
-            </select>
+        <label for="rate">Rate (₹/Liter):</label>
+        <input type="number" name="rate" step="0.01" required>
 
-            <label>Quantity (Litres)</label>
-            <input type="number" name="quantity" step="0.1" required>
+        <label for="liters">Liters:</label>
+        <input type="number" name="liters" step="0.01" required>
 
-            <input type="submit" value="Generate Bill">
-        </form>
+        <button type="submit">Generate Bill</button>
+    </form>
 
-        {% if bill %}
-        <h3>Generated Bill</h3>
-        <textarea readonly>{{ bill }}</textarea>
-        {% endif %}
+    {% if total %}
+    <div class="result">
+        <strong>Total Amount: ₹{{ "%.2f"|format(total) }}</strong>
     </div>
+    {% endif %}
+
+    <a href="{{ url_for('history') }}">View Billing History →</a>
 </body>
 </html>
