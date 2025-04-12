@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Billing History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f7f7f7;
+        }
+        h1 {
+            color: #333;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            background-color: #fff;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Petrol Pump Billing History</h1>
+    <a href="{{ url_for('index') }}">← Back to Billing</a>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Fuel Type</th>
+            <th>Rate (₹/L)</th>
+            <th>Liters</th>
+            <th>Total (₹)</th>
+        </tr>
+        {% for bill in bills %}
+        <tr>
+            <td>{{ bill[0] }}</td>
+            <td>{{ bill[1] }}</td>
+            <td>{{ bill[2] }}</td>
+            <td>{{ "%.2f"|format(bill[3]) }}</td>
+            <td>{{ "%.2f"|format(bill[4]) }}</td>
+            <td>{{ "%.2f"|format(bill[5]) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

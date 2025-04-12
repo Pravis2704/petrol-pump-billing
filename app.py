@@ -1,69 +1,60 @@
-from flask import Flask, render_template, request
-import datetime
+from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
+from datetime import datetime
 
 app = Flask(__name__)
 
-fuel_prices = {
-    "Petrol": 110.0,
-    "Diesel": 95.0,
-    "CNG": 80.0
-}
 
-# --- DB SETUP ---
+
+import sqlite3
+
 def init_db():
     conn = sqlite3.connect('bills.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS bills (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        fuel TEXT,
-        quantity REAL,
-        rate REAL,
-        total REAL,
-        date TEXT
-    )''')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS bills (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT,
+            fuel_type TEXT,
+            rate REAL,
+            liters REAL,
+            total_amount REAL
+        )
+    ''')
     conn.commit()
     conn.close()
 
-def save_bill_to_db(name, fuel_type, quantity, rate, total, date):
-    conn = sqlite3.connect('bills.db')
-    c = conn.cursor()
-    c.execute("INSERT INTO bills (name, fuel, quantity, rate, total, date) VALUES (?, ?, ?, ?, ?, ?)",
-              (name, fuel_type, quantity, rate, total, date))
-    conn.commit()
-    conn.close()
+init_db()
 
-# --- ROUTES ---
 @app.route('/', methods=['GET', 'POST'])
-def home():
-    bill = ""
+def index():
     if request.method == 'POST':
-        name = request.form['name']
-        fuel_type = request.form['fuel']
-        quantity = float(request.form['quantity'])
+        fuel_type = request.form['fuel_type']
+        rate = float(request.form['rate'])
+        liters = float(request.form['liters'])
+        total_amount = rate * liters
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        rate = fuel_prices[fuel_type]
-        total = quantity * rate
-        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # Save to database
+        conn = sqlite3.connect('bills.db')
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO bills (date, fuel_type, rate, liters, total_amount) VALUES (?, ?, ?, ?, ?)',
+                       (date, fuel_type, rate, liters, total_amount))
+        conn.commit()
+        conn.close()
 
-        bill = f"""===== PETROL PUMP BILL =====
-Date: {now}
-Customer Name: {name}
-Fuel Type: {fuel_type}
-Rate per Litre: ₹{rate}
-Quantity: {quantity} L
-----------------------------
-Total Amount: ₹{total}
-============================
-Thank You! Drive Safe!
-"""
+        return render_template('index.html', total=total_amount)
 
-        save_bill_to_db(name, fuel_type, quantity, rate, total, now)
+    return render_template('index.html', total=None)
 
-    return render_template('index.html', bill=bill, fuel_prices=fuel_prices)
+@app.route('/history')
+def history():
+    conn = sqlite3.connect('bills.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM bills ORDER BY id DESC')
+    all_bills = cursor.fetchall()
+    conn.close()
+    return render_template('history.html', bills=all_bills)
 
-# --- INIT DB + SERVER ---
 if __name__ == '__main__':
-    init_db()
-    app.run(debug=False, host='0.0.0.0', port=10000)
+    app.run(debug=False, port=10000)
